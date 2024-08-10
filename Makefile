@@ -1,240 +1,82 @@
-all: CreateDir 505 672 702 755 900
+VERSIONS := 3_55 3_70 4_00 4_05 4_55 5_01 5_05 6_72 7_02 7_55 9_00
+VRAM_SIZES := 1 2 3 4 5
+
+all: CreateDir $(foreach ver,$(VERSIONS),$(foreach size,$(VRAM_SIZES),LinuxLoader-$(ver)-$(size)gb.bin)) cleanelf
 
 clean:
-	rm -rf 505 672 702 755 900
+	rm -rf build
 	cd lib; make clean
-	cd ps4-kexec-505; make clean
-	cd ps4-kexec-672; make clean
-	cd ps4-kexec-702; make clean
-	cd ps4-kexec-755; make clean
-	cd ps4-kexec-900; make clean
+	cd src; make clean
 
-cleanelf505: 
-	cd 505; rm *.elf
-
-cleanelf672:
-	cd 672; rm *.elf
-
-cleanelf702:
-	cd 702; rm *.elf
-
-cleanelf755:
-	cd 755; rm *.elf
-
-cleanelf900:
-	cd 900; rm *.elf
-
-lib/lib.a:
-	clear
-	@echo Compiling lib.a
-	@echo
-	cd lib; make
-	@echo
-	@echo lib.a compile
-	@echo 
-	@echo Compiling Payloads
-	@echo 
-
-505: LinuxLoader-505.bin LinuxLoader-505-2gb.bin LinuxLoader-505-3gb.bin LinuxLoader-505-4gb.bin LinuxLoader-505-5gb.bin cleanelf505
-
-672: LinuxLoader-672.bin LinuxLoader-672-2gb.bin LinuxLoader-672-3gb.bin LinuxLoader-672-4gb.bin LinuxLoader-672-5gb.bin cleanelf672
-
-702: LinuxLoader-702.bin LinuxLoader-702-2gb.bin LinuxLoader-702-3gb.bin LinuxLoader-702-4gb.bin LinuxLoader-702-5gb.bin cleanelf702
-
-755: LinuxLoader-755.bin LinuxLoader-755-2gb.bin LinuxLoader-755-3gb.bin LinuxLoader-755-4gb.bin LinuxLoader-755-5gb.bin cleanelf755
-
-900: LinuxLoader-900.bin LinuxLoader-900-2gb.bin LinuxLoader-900-3gb.bin LinuxLoader-900-4gb.bin LinuxLoader-900-5gb.bin cleanelf900
+cleanelf:
+	cd build; rm -f *.elf
 
 CreateDir:
-	mkdir -p 505 672 702 755 900
+	mkdir -p build
 
-LinuxLoader-505.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__5_05__ main.c -Wl,-gc-sections -o 505/LinuxLoader-505.elf -fPIE -ffreestanding
- 
-LinuxLoader-505.bin: LinuxLoader-505.elf
-	objcopy 505/LinuxLoader-505.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 505/LinuxLoader-505.bin
-	file 505/LinuxLoader-505.bin | fgrep -q 'LinuxLoader-505.bin: DOS executable (COM)'
+define compile_version
+lib/lib-$(1).a:
+	@echo Compiling lib.a for $(1)
+	@echo
+	cd lib && $(MAKE) PS4_VERSION=$(1)
+	mv lib/lib.a lib/lib-$(1).a
+	@echo
+	@echo lib-$(1).a compiled
+	@echo
 
-LinuxLoader-672.elf: lib/lib.a main.c ps4-kexec-672/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__6_72__  main.c -Wl,-gc-sections -o 672/LinuxLoader-672.elf -fPIE -ffreestanding
+src/kexec-$(1).bin:
+	@echo Compiling kexec.bin for $(1)
+	@echo
+	cd src && $(MAKE) PS4_VERSION=$(1)
+	mv src/kexec.bin src/kexec-$(1).bin
+	@echo
+	@echo kexec-$(1).bin compiled
+	@echo
 
-LinuxLoader-672.bin: LinuxLoader-672.elf
-	objcopy 672/LinuxLoader-672.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 672/LinuxLoader-672.bin
-	file 672/LinuxLoader-672.bin | fgrep -q 'LinuxLoader-672.bin: DOS executable (COM)'
+LinuxLoader-$(1).elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1).elf -fPIE -ffreestanding
 
-LinuxLoader-702.elf: lib/lib.a main.c ps4-kexec-702/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__7_02__ main.c -Wl,-gc-sections -o 702/LinuxLoader-702.elf -fPIE -ffreestanding
+LinuxLoader-$(1).bin: LinuxLoader-$(1).elf
+	objcopy build/LinuxLoader-$(1).elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1).bin
+	file build/LinuxLoader-$(1).bin | fgrep -q 'LinuxLoader-$(1).bin: DOS executable (COM)'
 
-LinuxLoader-702.bin: LinuxLoader-702.elf
-	objcopy 702/LinuxLoader-702.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 702/LinuxLoader-702.bin
-	file 702/LinuxLoader-702.bin | fgrep -q 'LinuxLoader-702.bin: DOS executable (COM)'
-	
-LinuxLoader-755.elf: lib/lib.a main.c ps4-kexec-755/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__7_55__ main.c -Wl,-gc-sections -o 755/LinuxLoader-755.elf -fPIE -ffreestanding
+LinuxLoader-$(1)-1gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=1 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-1gb.elf -fPIE -ffreestanding
 
-LinuxLoader-755.bin: LinuxLoader-755.elf
-	objcopy 755/LinuxLoader-755.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 755/LinuxLoader-755.bin
-	file 755/LinuxLoader-755.bin | fgrep -q 'LinuxLoader-755.bin: DOS executable (COM)'
+LinuxLoader-$(1)-1gb.bin: LinuxLoader-$(1)-1gb.elf
+	objcopy build/LinuxLoader-$(1)-1gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-1gb.bin
+	file build/LinuxLoader-$(1)-1gb.bin | fgrep -q 'LinuxLoader-$(1)-1gb.bin: DOS executable (COM)'
 
-LinuxLoader-900.elf: lib/lib.a main.c ps4-kexec-900/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__9_00__ main.c -Wl,-gc-sections -o 900/LinuxLoader-900.elf -fPIE -ffreestanding
+LinuxLoader-$(1)-2gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=2 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-2gb.elf -fPIE -ffreestanding
 
-LinuxLoader-900.bin: LinuxLoader-900.elf
-	objcopy 900/LinuxLoader-900.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 900/LinuxLoader-900.bin
-	file 900/LinuxLoader-900.bin | fgrep -q 'LinuxLoader-900.bin: DOS executable (COM)'
+LinuxLoader-$(1)-2gb.bin: LinuxLoader-$(1)-2gb.elf
+	objcopy build/LinuxLoader-$(1)-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-2gb.bin
+	file build/LinuxLoader-$(1)-2gb.bin | fgrep -q 'LinuxLoader-$(1)-2gb.bin: DOS executable (COM)'
 
-LinuxLoader-505-2gb.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=2 -D__5_05__ main.c -Wl,-gc-sections -o 505/LinuxLoader-505-2gb.elf -fPIE -ffreestanding
+LinuxLoader-$(1)-3gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=3 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-3gb.elf -fPIE -ffreestanding
 
-LinuxLoader-505-2gb.bin: LinuxLoader-505-2gb.elf
-	objcopy 505/LinuxLoader-505-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 505/LinuxLoader-505-2gb.bin
-	file 505/LinuxLoader-505-2gb.bin | fgrep -q 'LinuxLoader-505-2gb.bin: DOS executable (COM)'
+LinuxLoader-$(1)-3gb.bin: LinuxLoader-$(1)-3gb.elf
+	objcopy build/LinuxLoader-$(1)-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-3gb.bin
+	file build/LinuxLoader-$(1)-3gb.bin | fgrep -q 'LinuxLoader-$(1)-3gb.bin: DOS executable (COM)'
 
-LinuxLoader-672-2gb.elf: lib/lib.a main.c ps4-kexec-672/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__6_72__ -DVRAM_GB_DEFAULT=2 main.c -Wl,-gc-sections -o 672/LinuxLoader-672-2gb.elf -fPIE -ffreestanding
+LinuxLoader-$(1)-4gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=4 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-4gb.elf -fPIE -ffreestanding
 
-LinuxLoader-672-2gb.bin: LinuxLoader-672-2gb.elf
-	objcopy 672/LinuxLoader-672-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 672/LinuxLoader-672-2gb.bin
-	file 672/LinuxLoader-672-2gb.bin | fgrep -q 'LinuxLoader-672-2gb.bin: DOS executable (COM)'
+LinuxLoader-$(1)-4gb.bin: LinuxLoader-$(1)-4gb.elf
+	objcopy build/LinuxLoader-$(1)-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-4gb.bin
+	file build/LinuxLoader-$(1)-4gb.bin | fgrep -q 'LinuxLoader-$(1)-4gb.bin: DOS executable (COM)'
 
-LinuxLoader-702-2gb.elf: lib/lib.a main.c ps4-kexec-702/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=2 -D__7_02__ main.c -Wl,-gc-sections -o 702/LinuxLoader-702-2gb.elf -fPIE -ffreestanding
+LinuxLoader-$(1)-5gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
+	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=5 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-5gb.elf -fPIE -ffreestanding
 
-LinuxLoader-702-2gb.bin: LinuxLoader-702-2gb.elf
-	objcopy 702/LinuxLoader-702-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 702/LinuxLoader-702-2gb.bin
-	file 702/LinuxLoader-702-2gb.bin | fgrep -q 'LinuxLoader-702-2gb.bin: DOS executable (COM)'
-	
-LinuxLoader-755-2gb.elf: lib/lib.a main.c ps4-kexec-755/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=2 -D__7_55__ main.c -Wl,-gc-sections -o 755/LinuxLoader-755-2gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-755-2gb.bin: LinuxLoader-755-2gb.elf
-	objcopy 755/LinuxLoader-755-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 755/LinuxLoader-755-2gb.bin
-	file 755/LinuxLoader-755-2gb.bin | fgrep -q 'LinuxLoader-755-2gb.bin: DOS executable (COM)'
+LinuxLoader-$(1)-5gb.bin: LinuxLoader-$(1)-5gb.elf
+	objcopy build/LinuxLoader-$(1)-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-5gb.bin
+	file build/LinuxLoader-$(1)-5gb.bin | fgrep -q 'LinuxLoader-$(1)-5gb.bin: DOS executable (COM)'
 
-LinuxLoader-900-2gb.elf: lib/lib.a main.c ps4-kexec-900/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=2 -D__9_00__ main.c -Wl,-gc-sections -o 900/LinuxLoader-900-2gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-900-2gb.bin: LinuxLoader-900-2gb.elf
-	objcopy 900/LinuxLoader-900-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 900/LinuxLoader-900-2gb.bin
-	file 900/LinuxLoader-900-2gb.bin | fgrep -q 'LinuxLoader-900-2gb.bin: DOS executable (COM)'
+endef
 
-LinuxLoader-505-3gb.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=3 -D__5_05__ main.c -Wl,-gc-sections -o 505/LinuxLoader-505-3gb.elf -fPIE -ffreestanding
+$(foreach ver,$(VERSIONS),$(eval $(call compile_version,$(ver))))
 
-LinuxLoader-505-3gb.bin: LinuxLoader-505-3gb.elf
-	objcopy 505/LinuxLoader-505-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 505/LinuxLoader-505-3gb.bin
-	file 505/LinuxLoader-505-3gb.bin | fgrep -q 'LinuxLoader-505-3gb.bin: DOS executable (COM)'
-
-LinuxLoader-672-3gb.elf: lib/lib.a main.c ps4-kexec-672/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__6_72__ -DVRAM_GB_DEFAULT=3 main.c -Wl,-gc-sections -o 672/LinuxLoader-672-3gb.elf -fPIE -ffreestanding
-
-LinuxLoader-672-3gb.bin: LinuxLoader-672-3gb.elf
-	objcopy 672/LinuxLoader-672-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 672/LinuxLoader-672-3gb.bin
-	file 672/LinuxLoader-672-3gb.bin | fgrep -q 'LinuxLoader-672-3gb.bin: DOS executable (COM)'
-
-LinuxLoader-702-3gb.elf: lib/lib.a main.c ps4-kexec-702/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=3 -D__7_02__ main.c -Wl,-gc-sections -o 702/LinuxLoader-702-3gb.elf -fPIE -ffreestanding
-
-LinuxLoader-702-3gb.bin: LinuxLoader-702-3gb.elf
-	objcopy 702/LinuxLoader-702-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 702/LinuxLoader-702-3gb.bin
-	file 702/LinuxLoader-702-3gb.bin | fgrep -q 'LinuxLoader-702-3gb.bin: DOS executable (COM)'
-	
-LinuxLoader-755-3gb.elf: lib/lib.a main.c ps4-kexec-755/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=3 -D__7_55__ main.c -Wl,-gc-sections -o 755/LinuxLoader-755-3gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-755-3gb.bin: LinuxLoader-755-3gb.elf
-	objcopy 755/LinuxLoader-755-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 755/LinuxLoader-755-3gb.bin
-	file 755/LinuxLoader-755-3gb.bin | fgrep -q 'LinuxLoader-755-3gb.bin: DOS executable (COM)'
-
-LinuxLoader-900-3gb.elf: lib/lib.a main.c ps4-kexec-900/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=3 -D__9_00__ main.c -Wl,-gc-sections -o 900/LinuxLoader-900-3gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-900-3gb.bin: LinuxLoader-900-3gb.elf
-	objcopy 900/LinuxLoader-900-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 900/LinuxLoader-900-3gb.bin
-	file 900/LinuxLoader-900-3gb.bin | fgrep -q 'LinuxLoader-900-3gb.bin: DOS executable (COM)'
-
-LinuxLoader-505-4gb.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__5_05__ -DVRAM_GB_DEFAULT=4 main.c -Wl,-gc-sections -o 505/LinuxLoader-505-4gb.elf -fPIE -ffreestanding
-
-LinuxLoader-505-4gb.bin: LinuxLoader-505-4gb.elf
-	objcopy 505/LinuxLoader-505-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 505/LinuxLoader-505-4gb.bin
-	file 505/LinuxLoader-505-4gb.bin | fgrep -q 'LinuxLoader-505-4gb.bin: DOS executable (COM)'
-
-LinuxLoader-672-4gb.elf: lib/lib.a main.c ps4-kexec-672/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__6_72__ -DVRAM_GB_DEFAULT=4 main.c -Wl,-gc-sections -o 672/LinuxLoader-672-4gb.elf -fPIE -ffreestanding
-
-LinuxLoader-672-4gb.bin: LinuxLoader-672-4gb.elf
-	objcopy 672/LinuxLoader-672-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 672/LinuxLoader-672-4gb.bin
-	file 672/LinuxLoader-672-4gb.bin | fgrep -q 'LinuxLoader-672-4gb.bin: DOS executable (COM)'
-
-LinuxLoader-702-4gb.elf: lib/lib.a main.c ps4-kexec-702/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=4 -D__7_02__ main.c -Wl,-gc-sections -o 702/LinuxLoader-702-4gb.elf -fPIE -ffreestanding
-
-LinuxLoader-702-4gb.bin: LinuxLoader-702-4gb.elf
-	objcopy 702/LinuxLoader-702-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 702/LinuxLoader-702-4gb.bin
-	file 702/LinuxLoader-702-4gb.bin | fgrep -q 'LinuxLoader-702-4gb.bin: DOS executable (COM)'
-	
-LinuxLoader-755-4gb.elf: lib/lib.a main.c ps4-kexec-755/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=4 -D__7_55__ main.c -Wl,-gc-sections -o 755/LinuxLoader-755-4gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-755-4gb.bin: LinuxLoader-755-4gb.elf
-	objcopy 755/LinuxLoader-755-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 755/LinuxLoader-755-4gb.bin
-	file 755/LinuxLoader-755-4gb.bin | fgrep -q 'LinuxLoader-755-4gb.bin: DOS executable (COM)'
-
-LinuxLoader-900-4gb.elf: lib/lib.a main.c ps4-kexec-900/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=4 -D__9_00__ main.c -Wl,-gc-sections -o 900/LinuxLoader-900-4gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-900-4gb.bin: LinuxLoader-900-4gb.elf
-	objcopy 900/LinuxLoader-900-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 900/LinuxLoader-900-4gb.bin
-	file 900/LinuxLoader-900-4gb.bin | fgrep -q 'LinuxLoader-900-4gb.bin: DOS executable (COM)'
-
-LinuxLoader-505-5gb.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=5 -D__5_05__ main.c -Wl,-gc-sections -o 505/LinuxLoader-505-5gb.elf -fPIE -ffreestanding
-
-LinuxLoader-505-5gb.bin: LinuxLoader-505-5gb.elf
-	objcopy 505/LinuxLoader-505-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 505/LinuxLoader-505-5gb.bin
-	file 505/LinuxLoader-505-5gb.bin | fgrep -q 'LinuxLoader-505-5gb.bin: DOS executable (COM)'
-
-LinuxLoader-672-5gb.elf: lib/lib.a main.c ps4-kexec-672/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__6_72__ -DVRAM_GB_DEFAULT=5 main.c -Wl,-gc-sections -o 672/LinuxLoader-672-5gb.elf -fPIE -ffreestanding
-
-LinuxLoader-672-5gb.bin: LinuxLoader-672-5gb.elf
-	objcopy 672/LinuxLoader-672-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 672/LinuxLoader-672-5gb.bin
-	file 672/LinuxLoader-672-5gb.bin | fgrep -q 'LinuxLoader-672-5gb.bin: DOS executable (COM)'
-
-LinuxLoader-702-5gb.elf: lib/lib.a main.c ps4-kexec-702/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=5 -D__7_02__ main.c -Wl,-gc-sections -o 702/LinuxLoader-702-5gb.elf -fPIE -ffreestanding
-
-LinuxLoader-702-5gb.bin: LinuxLoader-702-5gb.elf
-	objcopy 702/LinuxLoader-702-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 702/LinuxLoader-702-5gb.bin
-	file 702/LinuxLoader-702-5gb.bin | fgrep -q 'LinuxLoader-702-5gb.bin: DOS executable (COM)'
-	
-LinuxLoader-755-5gb.elf: lib/lib.a main.c ps4-kexec-755/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=5 -D__7_55__ main.c -Wl,-gc-sections -o 755/LinuxLoader-755-5gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-755-5gb.bin: LinuxLoader-755-5gb.elf
-	objcopy 755/LinuxLoader-755-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 755/LinuxLoader-755-5gb.bin
-	file 755/LinuxLoader-755-5gb.bin | fgrep -q 'LinuxLoader-755-5gb.bin: DOS executable (COM)'
-
-LinuxLoader-900-5gb.elf: lib/lib.a main.c ps4-kexec-900/kexec.bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -DVRAM_GB_DEFAULT=5 -D__9_00__ main.c -Wl,-gc-sections -o 900/LinuxLoader-900-5gb.elf -fPIE -ffreestanding
-	
-LinuxLoader-900-5gb.bin: LinuxLoader-900-5gb.elf
-	objcopy 900/LinuxLoader-900-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary 900/LinuxLoader-900-5gb.bin
-	file 900/LinuxLoader-900-5gb.bin | fgrep -q 'LinuxLoader-900-5gb.bin: DOS executable (COM)'
-
-ps4-kexec-505/kexec.bin:
-	cd ps4-kexec-505; make
-
-ps4-kexec-672/kexec.bin:
-	cd ps4-kexec-672; make
-
-ps4-kexec-702/kexec.bin:
-	cd ps4-kexec-702; make
-
-ps4-kexec-755/kexec.bin:
-	cd ps4-kexec-755; make
-	
-ps4-kexec-900/kexec.bin:
-	cd ps4-kexec-900; make
-
+.PHONY: clean cleanelf

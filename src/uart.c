@@ -15,7 +15,7 @@
 #define AEOLIA_UART_BASE 0xD0340000
 #define BAIKAL_UART_BASE 0xC890E000
 
-#define UART_REG(size, intf, reg) PHYS_TO_DMAP(size, AEOLIA_UART_BASE + (intf << 12) + (reg << 2))
+#define UART_REG(size, intf, reg) PHYS_TO_DMAP(size, BAIKAL_UART_BASE + (intf << 12) + (reg << 2))
 
 #define UART_REG_DATA	0
 #define UART_REG_IER	1
@@ -23,8 +23,8 @@
 #define UART_REG_LCR	3
 #define UART_REG_MCR	4
 #define UART_REG_LSR	5
-#	define	LSR_TXRDY	0x20
-#	define	LSR_TEMT	0x40
+#define	LSR_TXRDY	0x20
+#define	LSR_TEMT	0x40
 #define UART_REG_MSR	6
 #define UART0_DATA	UART_REG( 8, 0, UART_REG_DATA)
 #define UART0_IER	UART_REG(32, 0, UART_REG_IER)

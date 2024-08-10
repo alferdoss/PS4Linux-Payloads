@@ -9,15 +9,27 @@
 #include <ps4-offsets/kernel.h>
 
 #if defined(__9_00__)
-asm("ps4kexec:\n.incbin \"ps4-kexec-900/kexec.bin\"\nps4kexec_end:\n");
+asm("ps4kexec:\n.incbin \"src/kexec-9_00.bin\"\nps4kexec_end:\n");
 #elif defined(__7_55__)
-asm("ps4kexec:\n.incbin \"ps4-kexec-755/kexec.bin\"\nps4kexec_end:\n");
+asm("ps4kexec:\n.incbin \"src/kexec-7_55.bin\"\nps4kexec_end:\n");
 #elif defined(__7_02__)
-asm("ps4kexec:\n.incbin \"ps4-kexec-702/kexec.bin\"\nps4kexec_end:\n");
+asm("ps4kexec:\n.incbin \"src/kexec-7_02.bin\"\nps4kexec_end:\n");
 #elif defined(__6_72__)
-asm("ps4kexec:\n.incbin \"ps4-kexec-672/kexec.bin\"\nps4kexec_end:\n");
+asm("ps4kexec:\n.incbin \"src/kexec-6_72.bin\"\nps4kexec_end:\n");
 #elif defined(__5_05__)
-asm("ps4kexec:\n.incbin \"ps4-kexec-505/kexec.bin\"\nps4kexec_end:\n");
+asm("ps4kexec:\n.incbin \"src/kexec-5_05.bin\"\nps4kexec_end:\n");
+#elif defined(__5_01__)
+asm("ps4kexec:\n.incbin \"src/kexec-5_01.bin\"\nps4kexec_end:\n");
+#elif defined(__4_55__)
+asm("ps4kexec:\n.incbin \"src/kexec-4_55.bin\"\nps4kexec_end:\n");
+#elif defined(__4_05__)
+asm("ps4kexec:\n.incbin \"src/kexec-4_05.bin\"\nps4kexec_end:\n");
+#elif defined(__4_00__)
+asm("ps4kexec:\n.incbin \"src/kexec-4_00.bin\"\nps4kexec_end:\n");
+#elif defined(__3_70__)
+asm("ps4kexec:\n.incbin \"src/kexec-3_70.bin\"\nps4kexec_end:\n");
+#elif defined(__3_55__)
+asm("ps4kexec:\n.incbin \"src/kexec-3_55.bin\"\nps4kexec_end:\n");
 #else
 #error "unsupported firmware"
 #endif
