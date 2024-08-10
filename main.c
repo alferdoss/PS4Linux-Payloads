@@ -7,6 +7,15 @@
 #include <sys/thr.h>
 #include <time.h>
 #include <ps4-offsets/kernel.h>
+#include <stdio.h>
+
+#define AEOLIA_UART_ADDR "0xD0340000"
+#define BAIKAL_UART_ADDR "0xC890E000"
+#define CURRENT_UART_ADDR AEOLIA_UART_ADDR // Just change this to BAIKAL_UART_ADDR if you are using a Baikal console
+#define DEFAULT_COMMAND_LINE "panic=10 clocksource=tsc console=tty0 console=ttyS0,115200n8 " \
+"console=uart8250,mmio32," CURRENT_UART_ADDR " video=HDMI-A-1:1920x1080-24@60 " \
+"consoleblank=0 net.ifnames=0 "
+
 
 #if defined(__9_00__)
 asm("ps4kexec:\n.incbin \"src/kexec-9_00.bin\"\nps4kexec_end:\n");
@@ -170,6 +179,7 @@ int main()
     int vramgb = VRAM_GB_DEFAULT;
 
 #define L(name, where, wheresz, is_fatal)\
+    alert("Loading Linux");\
     if(read_file("/mnt/usb0/" name, where, wheresz)\
     && read_file("/mnt/usb1/" name, where, wheresz)\
     && read_file(HDD_BOOT_PATH name, where, wheresz))\
@@ -195,16 +205,11 @@ int main()
         alert(cmdline);
     }
     else
-        cmdline = "panic=10 clocksource=tsc console=tty0 console=ttyS0,115200n8 "
-                  "console=uart8250,mmio32,0xd0340000 video=HDMI-A-1:1920x1080-24@60file "
-                  "consoleblank=0 net.ifnames=0";
-
-    L("vram.txt", &vramstr, &vramstr_size, 0);
-    if(vramstr && vramstr_size)
     {
-        vramgb = my_atoi(vramstr);
-        if(vramgb < VRAM_GB_MIN || vramgb > VRAM_GB_MAX)
-            vramgb = VRAM_GB_DEFAULT;
+        cmdline = DEFAULT_COMMAND_LINE;
+        alert("Using default boot arguments");
+        alert("command line: ");
+        alert(DEFAULT_COMMAND_LINE);
     }
 
     kexec(kernel_main, (void*)0);
