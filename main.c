@@ -155,7 +155,7 @@ int main()
     unsigned long long cmdline_size = 0;
     char* vramstr = NULL;
     unsigned long long vramstr_size = 0;
-    int vramgb = 0;
+    int vramgb = VRAM_GB_DEFAULT;
 
 #define L(name, where, wheresz, is_fatal)\
     if(read_file("/mnt/usb0/" name, where, wheresz)\
@@ -178,11 +178,14 @@ int main()
                 cmdline[i] = '\0';
                 break;
             }
+        alert("Using custom boot arguments from bootargs.txt");
+        alert("command line: " );
+        alert(cmdline);
     }
     else
-        cmdline = "panic=0 clocksource=tsc amdgpu.dpm=0 console=tty0 console=ttyS0,115200n8 "
-                  "console=uart8250,mmio32,0xd0340000 video=HDMI-A-1:1920x1080-24@60 "
-                  "consoleblank=0 net.ifnames=0 drm.debug=0 amdgpu.ppfeaturemask=0xffffffff";
+        cmdline = "panic=10 clocksource=tsc console=tty0 console=ttyS0,115200n8 "
+                  "console=uart8250,mmio32,0xd0340000 video=HDMI-A-1:1920x1080-24@60file "
+                  "consoleblank=0 net.ifnames=0";
 
     L("vram.txt", &vramstr, &vramstr_size, 0);
     if(vramstr && vramstr_size)
@@ -191,8 +194,6 @@ int main()
         if(vramgb < VRAM_GB_MIN || vramgb > VRAM_GB_MAX)
             vramgb = VRAM_GB_DEFAULT;
     }
-    else
-        vramgb = VRAM_GB_DEFAULT;
 
     kexec(kernel_main, (void*)0);
     long x, y;

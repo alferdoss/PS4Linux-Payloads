@@ -46,13 +46,7 @@ lib/lib.a:
 900: LinuxLoader-900.bin LinuxLoader-900-2gb.bin LinuxLoader-900-3gb.bin LinuxLoader-900-4gb.bin LinuxLoader-900-5gb.bin cleanelf900
 
 CreateDir:
-	mkdir 505
-	mkdir 672
-	mkdir 702
-	mkdir 755
-	mkdir 900
-
-#1080p
+	mkdir -p 505 672 702 755 900
 
 LinuxLoader-505.elf: lib/lib.a main.c ps4-kexec-505/kexec.bin
 	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib.a -D__5_05__ main.c -Wl,-gc-sections -o 505/LinuxLoader-505.elf -fPIE -ffreestanding
