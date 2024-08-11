@@ -5,7 +5,7 @@ OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
 
 PS4_VERSION ?= 9_00
 
-CFLAGS += -D__$(PS4_VERSION)__ -DKASLR -DNO_SYMTAB -DDO_NOT_REMAP_RWX
+CFLAGS += -DPS4_$(PS4_VERSION) -DKASLR -DNO_SYMTAB -DDO_NOT_REMAP_RWX
 CFLAGS += -march=btver2 -masm=intel -std=gnu11 -ffreestanding -fno-common \
     -fPIE -pie -fno-stack-protector -fomit-frame-pointer -nostdlib -nostdinc \
     -fno-asynchronous-unwind-tables \
