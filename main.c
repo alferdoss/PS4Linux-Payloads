@@ -6,8 +6,7 @@
 #include <signal.h>
 #include <sys/thr.h>
 #include <time.h>
-#include <ps4-offsets/kernel.h>
-#include <stdio.h>
+#include "./ps4-offsets/kernel.h"
 
 #define AEOLIA_UART_ADDR "0xD0340000"
 #define BAIKAL_UART_ADDR "0xC890E000"
@@ -42,10 +41,10 @@ unsigned long long get_syscall(void)
 
 void kernel_main()
 {
-    unsigned long long kernel_base = get_syscall() - kernel_offset_xfast_syscall;
-    unsigned long long early_printf = kernel_base + kernel_offset_printf;
-    unsigned long long kmem_alloc = kernel_base + kernel_offset_kmem_alloc;
-    unsigned long long kernel_map = kernel_base + kernel_offset_kernel_map;
+    unsigned long long kernel_base = get_syscall() - kern_off_xfast_syscall;
+    unsigned long long early_printf = kernel_base + kern_off_printf;
+    unsigned long long kmem_alloc = kernel_base + kern_off_kmem_alloc;
+    unsigned long long kernel_map = kernel_base + kern_off_kernel_map;
     char* new_ps4_kexec = ((char*(*)(unsigned long long, unsigned long long))kmem_alloc)(*(unsigned long long*)kernel_map, ps4kexec_end-ps4kexec);
     for(int i = 0; ps4kexec + i != ps4kexec_end; i++)
         new_ps4_kexec[i] = ps4kexec[i];
