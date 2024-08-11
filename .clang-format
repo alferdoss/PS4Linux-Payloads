@@ -1,0 +1,11 @@
+---
+Language: Cpp
+AlignConsecutiveMacros: AcrossEmptyLines
+AlignConsecutiveAssignments: true
+AlignEscapedNewlines: Left
+AlignTrailingComments: true
+ColumnLimit: 100
+IndentWidth: 4
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+

@@ -1,4 +1,4 @@
-VERSIONS := 3_55 3_70 4_00 4_05 4_55 5_01 5_05 6_72 7_02 7_55 9_00
+VERSIONS := 6_72 7_02 7_55 9_00
 VRAM_SIZES := 1 2 3 4 5
 
 all: CreateDir $(foreach ver,$(VERSIONS),$(foreach size,$(VRAM_SIZES),LinuxLoader-$(ver)-$(size)gb.bin)) cleanelf

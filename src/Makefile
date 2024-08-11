@@ -36,6 +36,6 @@ kexec.elf: libkexec.a kexec.ld
 	$(OBJCOPY) -O binary $< $@
 
 clean:
-	rm -f libkexec.a kexec.elf kexec.bin $(OBJS)
+	rm -f libkexec.a kexec.elf kexec-*.bin $(OBJS)
 
 .PHONY: clean
