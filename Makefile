@@ -34,42 +34,42 @@ src/kexec-$(1).bin:
 	@echo
 
 LinuxLoader-$(1).elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1).elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1).elf -fPIE -ffreestanding
 
 LinuxLoader-$(1).bin: LinuxLoader-$(1).elf
 	objcopy build/LinuxLoader-$(1).elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1).bin
 	file build/LinuxLoader-$(1).bin | fgrep -q 'LinuxLoader-$(1).bin: DOS executable (COM)'
 
 LinuxLoader-$(1)-1gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=1 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-1gb.elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=1 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-1gb.elf -fPIE -ffreestanding
 
 LinuxLoader-$(1)-1gb.bin: LinuxLoader-$(1)-1gb.elf
 	objcopy build/LinuxLoader-$(1)-1gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-1gb.bin
 	file build/LinuxLoader-$(1)-1gb.bin | fgrep -q 'LinuxLoader-$(1)-1gb.bin: DOS executable (COM)'
 
 LinuxLoader-$(1)-2gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=2 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-2gb.elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=2 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-2gb.elf -fPIE -ffreestanding
 
 LinuxLoader-$(1)-2gb.bin: LinuxLoader-$(1)-2gb.elf
 	objcopy build/LinuxLoader-$(1)-2gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-2gb.bin
 	file build/LinuxLoader-$(1)-2gb.bin | fgrep -q 'LinuxLoader-$(1)-2gb.bin: DOS executable (COM)'
 
 LinuxLoader-$(1)-3gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=3 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-3gb.elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=3 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-3gb.elf -fPIE -ffreestanding
 
 LinuxLoader-$(1)-3gb.bin: LinuxLoader-$(1)-3gb.elf
 	objcopy build/LinuxLoader-$(1)-3gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-3gb.bin
 	file build/LinuxLoader-$(1)-3gb.bin | fgrep -q 'LinuxLoader-$(1)-3gb.bin: DOS executable (COM)'
 
 LinuxLoader-$(1)-4gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=4 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-4gb.elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=4 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-4gb.elf -fPIE -ffreestanding
 
 LinuxLoader-$(1)-4gb.bin: LinuxLoader-$(1)-4gb.elf
 	objcopy build/LinuxLoader-$(1)-4gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-4gb.bin
 	file build/LinuxLoader-$(1)-4gb.bin | fgrep -q 'LinuxLoader-$(1)-4gb.bin: DOS executable (COM)'
 
 LinuxLoader-$(1)-5gb.elf: lib/lib-$(1).a main.c src/kexec-$(1).bin
-	gcc -isystem freebsd-headers -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=5 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-5gb.elf -fPIE -ffreestanding
+	gcc -isystem freebsd-headers/include -nostdinc -nostdlib -fno-stack-protector -static lib/lib-$(1).a -DVRAM_GB_DEFAULT=5 -D__$(1)__ main.c -Wl,-gc-sections -o build/LinuxLoader-$(1)-5gb.elf -fPIE -ffreestanding
 
 LinuxLoader-$(1)-5gb.bin: LinuxLoader-$(1)-5gb.elf
 	objcopy build/LinuxLoader-$(1)-5gb.elf --only-section .text --only-section .data --only-section .bss --only-section .rodata -O binary build/LinuxLoader-$(1)-5gb.bin
