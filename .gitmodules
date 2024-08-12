@@ -1,3 +1,6 @@
 [submodule "freebsd-headers"]
 	path = freebsd-headers
 	url = https://github.com/alferdoss/freebsd-headers.git
+[submodule "ps4-offsets"]
+	path = ps4-offsets
+	url = https://github.com/alferdoss/ps4-offsets
