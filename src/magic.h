@@ -1,123 +1,19 @@
-#ifdef PS4_6_72
-#define kern_off_printf                   0x123280
-#define kern_off_snprintf                 0x123590
-#define kern_off_copyin                   0x3C17A0
-#define kern_off_copyout                  0x3C16B0
-#define kern_off_copyinstr                0x3C1C50
-#define kern_off_kmem_alloc_contig        0x0B71C0
-#define kern_off_kmem_free                0x250900
-#define kern_off_pmap_extract             0x04E420
-#define kern_off_pmap_protect             0x050F50
-#define kern_off_sched_pin                0x446A30
-#define kern_off_sched_unpin              0x446A40
-#define kern_off_smp_rendezvous           0x2C93C0
-#define kern_off_smp_no_rendevous_barrier 0x2C9180
-#define kern_off_icc_query_nowait         0x3F290
-#define kern_off_kernel_map               0x220DFC0
-#define kern_off_sysent                   0x111E000
-#define kern_off_kernel_pmap_store        0x1BB7880
-#define kern_off_Starsha_UcodeInfo        0
-#define kern_off_gpu_devid_is_9924        0x4E82D0
-#define kern_off_gc_get_fw_info           0x4E1A50
-#define kern_off_pml4pml4i                0x1BB7870
-#define kern_off_dmpml4i                  0x1BB7874
-#define kern_off_dmpdpi                   0x1BB7878
-#define kern_off_eap_hdd_key              0x26DCCD0
-#define kern_off_edid                     0x2764100
-#define kern_off_wlanbt                   0x1CDD80
-#define kern_off_kern_reboot              0x206D50
+/*
+ * Thin wrapper: maps legacy PS4_x_xx defines to the centralized
+ * ps4-offsets submodule (__x_xx__ convention), then pulls in the
+ * version-dispatched header.
+ */
 
-#elif defined PS4_7_00
-// credit: https://github.com/tihmstar
-#define kern_off_printf                   0x000BC730
-#define kern_off_snprintf                 0x000BCA30
-#define kern_off_copyin                   0x0002F230
-#define kern_off_copyout                  0x0002F140
-#define kern_off_copyinstr                0x0002F6E0
-#define kern_off_kmem_alloc_contig        0x430780 // unsure
-#define kern_off_kmem_free                0x001172C0
-#define kern_off_pmap_extract             0x3ded30
-#define kern_off_pmap_protect             0x3dff70
-#define kern_off_sched_pin                0x329870
-#define kern_off_sched_unpin              0x329890
-#define kern_off_smp_rendezvous           0x4447a0
-#define kern_off_smp_no_rendevous_barrier 0x444560
-#define kern_off_icc_query_nowait         0x3b2f80
-#define kern_off_kernel_map               0x021C8EE0
-#define kern_off_sysent                   0x01125660
-#define kern_off_kernel_pmap_store        0x22c5268
-#define kern_off_Starsha_UcodeInfo        0
-#define kern_off_gpu_devid_is_9924        0x4ee3c0
-#define kern_off_gc_get_fw_info           0x4f6830
-#define kern_off_pml4pml4i                0x22c5258
-#define kern_off_dmpml4i                  0x22c525c
-#define kern_off_dmpdpi                   0x22c5260
-#define kern_off_eap_hdd_key              0x26e0cd0
-#define kern_off_edid                     0x27645e0
-#define kern_off_wlanbt                   0xdecb0
-#define kern_off_kern_reboot              0x002CD780
-
-#elif defined PS4_7_55
-#define kern_off_printf                   0x26F740
-#define kern_off_snprintf                 0x26FA40
-#define kern_off_copyin                   0x28F9F0
-#define kern_off_copyout                  0x28F900
-#define kern_off_copyinstr                0x28FEA0
-#define kern_off_kmem_alloc_contig        0x49DF40
-#define kern_off_kmem_free                0x1755B0
-#define kern_off_pmap_extract             0x1A6D70
-#define kern_off_pmap_protect             0x1A7F10
-#define kern_off_sched_pin                0x191410
-#define kern_off_sched_unpin              0x191430
-#define kern_off_smp_rendezvous           0x26CEC0
-#define kern_off_smp_no_rendevous_barrier 0x26CC90
-#define kern_off_icc_query_nowait         0x1629D0
-#define kern_off_kernel_map               0x21405B8
-#define kern_off_sysent                   0x1122340
-#define kern_off_kernel_pmap_store        0x215EA40
-#define kern_off_Starsha_UcodeInfo        0
-#define kern_off_gpu_devid_is_9924        0x4E4560
-#define kern_off_gc_get_fw_info           0x4F8FE0
-#define kern_off_pml4pml4i                0x215EA30
-#define kern_off_dmpml4i                  0x215EA34
-#define kern_off_dmpdpi                   0x215EA38
-#define kern_off_eap_hdd_key              0x26D4C90
-#define kern_off_edid                     0x275C0D0
-#define kern_off_wlanbt                   0xE3B70
-#define kern_off_kern_reboot              0x02CD780
-
-#elif defined PS4_9_00
-#define kern_off_printf                   0x0B7A30
-#define kern_off_snprintf                 0x0B7D30
-#define kern_off_copyin                   0x2716A0
-#define kern_off_copyout                  0x2715B0
-#define kern_off_copyinstr                0x271B50
-#define kern_off_kmem_alloc_contig        0x270880
-#define kern_off_kmem_free                0x37C040
-#define kern_off_pmap_extract             0x12D050
-#define kern_off_pmap_protect             0x12E1F0
-#define kern_off_sched_pin                0x1CD0D0
-#define kern_off_sched_unpin              0x1CD0F0
-#define kern_off_smp_rendezvous           0x432BF0
-#define kern_off_smp_no_rendevous_barrier 0x432A00
-#define kern_off_icc_query_nowait         0x2E1760
-#define kern_off_kernel_map               0x2268D48
-#define kern_off_sysent                   0x1100310
-#define kern_off_kernel_pmap_store        0x1B904B0
-#define kern_off_Starsha_UcodeInfo        0
-#define kern_off_gpu_devid_is_9924        0x4AC260
-#define kern_off_gc_get_fw_info           0x4DF280
-#define kern_off_pml4pml4i                0x1B904A0
-#define kern_off_dmpml4i                  0x1B904A4
-#define kern_off_dmpdpi                   0x1B904A8
-#define kern_off_eap_hdd_key              0x26C4C90
-#define kern_off_edid                     0x274C058
-#define kern_off_wlanbt                   0x180860
-#define kern_off_kern_reboot              0x29A380
-#define kern_off_set_gpu_freq             0x4DDDC0
-#define kern_off_set_pstate               0x4D6FC0
-#define kern_off_update_vddnp             0x4DE360
-#define kern_off_set_cu_power_gate        0x4DE770
+#if defined(PS4_6_72)
+  #define __6_72__
+#elif defined(PS4_7_00)
+  #define __7_00__
+#elif defined(PS4_7_55)
+  #define __7_55__
+#elif defined(PS4_9_00)
+  #define __9_00__
 #else
-#error "Unsupported firmware"
+  #error "Unsupported firmware"
 #endif
+
+#include "../ps4-offsets/includes.h"
